@@ -1,0 +1,12 @@
+.max600 {
+    max-width: 600px;
+}
+
+.field-error {
+    border-color: #d95050;
+    color: #d95050;
+}
+
+input[readonly] {
+    background-color: #9b9ea5;
+}

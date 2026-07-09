@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content, script)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link th:href="@{/css/bootstrap.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <title th:replace="${title}">기본 제목</title>
+</head>
+<body>
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+
+<main th:replace="${content}">기본 내용</main>
+
+<script th:src="@{/js/bootstrap.bundle.js}"></script>
+<th:block th:replace="${script} ?: ~{}"></th:block>
+</body>
+</html>

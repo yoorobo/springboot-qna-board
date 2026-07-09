@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>회원 목록</title>
+</head>
+<body>
+<main class="container max600">
+    <div class="py-5 text-center">
+        <h2>회원 목록</h2>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>아이디</th>
+            <th>이름</th>
+            <th>비밀번호</th>
+            <th>등급</th>
+            <th>수정</th>
+            <th>삭제</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="member, stat : ${members}">
+            <td th:text="${stat.count}">1</td>
+            <td th:text="${member.loginId}">아이디</td>
+            <td th:text="${member.name}">이름</td>
+            <td th:text="${member.password}">비밀번호</td>
+            <td th:text="${member.grade}">등급</td>
+            <td>
+                <a th:href="@{/members/{id}/edit(id=${member.id})}"
+                   class="btn btn-primary" role="button">수정</a>
+            </td>
+            <td>
+                <a th:href="@{/members/{id}/delete(id=${member.id})}"
+                   class="btn btn-danger" role="button">삭제</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/}" class="btn btn-secondary">홈으로</a>
+</main>
+</body>
+</html>

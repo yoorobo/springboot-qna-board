@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>홈</title>
+</head>
+<body>
+<main class="container text-center max600">
+    <h2>홈 화면</h2>
+
+    <div class="d-flex justify-content-center align-items-center gap-2 mb-3" th:if="${loginMember}">
+        <p class="mb-0 fw-bold" th:text="|${loginMember.name}님 환영합니다.|"></p>
+        <form th:action="@{/logout}" method="post" class="mb-0">
+            <button class="btn btn-dark btn-sm">로그아웃</button>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-md mb-3 mb-md-0" th:unless="${loginMember}">
+            <button type="button" class="w-100 btn btn-secondary btn-lg"
+                    th:onclick="|location.href='@{/add}'|">회원 가입</button>
+        </div>
+
+        <div class="col-md mb-3 mb-md-0" th:if="${loginMember}">
+            <button type="button" class="w-100 btn btn-dark btn-lg"
+                    th:onclick="|location.href='@{/members}'|">회원 목록</button>
+        </div>
+
+        <div class="col-md mb-3 mb-md-0" th:unless="${loginMember}">
+            <button type="button" class="w-100 btn btn-dark btn-lg"
+                    th:onclick="|location.href='@{/login}'|">로그인</button>
+        </div>
+
+    </div>
+</main>
+
+<th:block th:fragment="script"></th:block>
+</body>
+</html>

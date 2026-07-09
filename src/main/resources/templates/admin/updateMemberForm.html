@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>회원 수정</title>
+</head>
+<body>
+<main class="container max600">
+
+    <div class="py-5 text-center">
+        <h2>회원 수정</h2>
+    </div>
+
+    <form th:action th:object="${memberForm}" method="post">
+        <!-- 수정할 회원의 id를 숨겨서 함께 전송 -->
+        <input type="hidden" th:field="*{id}">
+
+        <div class="mb-3">
+            <label th:for="loginId" class="form-label">로그인 ID</label>
+            <input type="text" class="form-control" th:field="*{loginId}" readonly>
+            <div th:errors="*{loginId}" class="field-error"></div>
+        </div>
+
+        <div class="mb-3">
+            <label th:for="password" class="form-label">비밀번호</label>
+            <input type="password" class="form-control" th:field="*{password}">
+            <div th:errors="*{password}" class="field-error"></div>
+        </div>
+
+        <div class="mb-3">
+            <label th:for="name" class="form-label">이름</label>
+            <input type="text" class="form-control" th:field="*{name}">
+            <div th:errors="*{name}" class="field-error"></div>
+        </div>
+
+        <div class="mb-3">
+            <label th:for="grade" class="form-label">등급</label>
+            <input type="text" class="form-control" th:field="*{grade}">
+            <div th:errors="*{grade}" class="field-error"></div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="w-100 btn btn-primary btn-lg">수정</button>
+            </div>
+            <div class="col">
+                <a th:href="@{/members}" class="w-100 btn btn-secondary btn-lg">취소</a>
+            </div>
+        </div>
+    </form>
+</main>
+</body>
+</html>
