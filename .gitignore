@@ -44,3 +44,7 @@ out/
 .env
 application-local.yaml
 application-local.yml
+
+### 로컬 실험 코드 ###
+# 대량 더미데이터 생성용 스크립트 (검증 로직 없음 → 리포에 포함하지 않음)
+src/test/java/com/example/login/domain/QuestionTest.java
