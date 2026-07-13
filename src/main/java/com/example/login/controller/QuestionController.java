@@ -1,6 +1,5 @@
 package com.example.login.controller;
 
-import com.example.login.controller.SessionConst;
 import com.example.login.domain.DoMember;
 import com.example.login.domain.Question;
 import com.example.login.dto.AnswerForm;
@@ -8,13 +7,13 @@ import com.example.login.dto.QuestionForm;
 import com.example.login.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -54,19 +53,21 @@ public class QuestionController {
         return "redirect:/question/list";
     }
 
-    //목록보기
+    //목록보기 (페이징 + 검색)
     @GetMapping("/question/list")
     public String list(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "kw", defaultValue = "") String kw,
             @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
             Model model) {
 
-        List<Question> questionList = questionService.getList();
-        model.addAttribute("questionList", questionList);
+        Page<Question> paging = questionService.getList(page, kw);
+        model.addAttribute("paging", paging);
+        model.addAttribute("kw", kw);          // 검색 후에도 입력창에 검색어 유지용
         model.addAttribute("loginMember", loginMember);
 
         return "user/questionList";
     }
-
     //상세페이지
     @GetMapping("/question/detail/{id}")
     public String detail(

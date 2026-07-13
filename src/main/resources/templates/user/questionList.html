@@ -8,6 +8,20 @@
     <div class="py-5 text-center">
         <h2>질문 목록</h2>
     </div>
+
+    <!-- 검색창: 왼쪽 등록버튼 / 오른쪽 검색 -->
+    <div class="row my-3">
+        <div class="col-6">
+            <a th:href="@{/question/create}" class="btn btn-dark" role="button">질문 등록하기</a>
+        </div>
+        <div class="col-6">
+            <div class="input-group">
+                <input type="text" id="search_kw" class="form-control" th:value="${kw}">
+                <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+            </div>
+        </div>
+    </div>
+
     <table class="table table-striped table-hover">
         <thead class="table-dark">
         <tr>
@@ -18,18 +32,78 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="question : ${questionList}">
-            <th th:text="${question.id}">번호</th>
+        <tr th:each="question, loop : ${paging}">
+            <!-- 게시글 번호: 전체개수 - (현재페이지 × 개수) - index (DESC용) -->
+            <th th:text="${paging.getTotalElements() - (paging.number * paging.size) - loop.index}">번호</th>
             <td>
                 <a th:text="${question.subject}" th:href="@{/question/detail/{id}(id=${question.id})}">제목</a>
+                <!-- 댓글 수: #lists.size는 null이어도 0 처리(안전) -->
+                <span class="text-danger small ms-2"
+                      th:if="${#lists.size(question.answerList) > 0}"
+                      th:text="${#lists.size(question.answerList)}">
+                </span>
             </td>
             <td th:text="${question.author != null ? question.author.loginId : 'Unknown'}">글쓴이</td>
-            <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd')}">작성일자</td>
+            <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}">작성일자</td>
         </tr>
         </tbody>
     </table>
-    <a th:href="@{/question/create}" class="btn btn-dark" role="button">질문 등록하기</a>
+
+    <!-- 페이지 네비게이션: 링크 대신 data-page + 폼 전송 (검색어 유지) -->
+    <nav th:if="${!paging.isEmpty()}">
+        <ul class="pagination justify-content-center">
+            <!-- 이전 -->
+            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number - 1}">이전</a>
+            </li>
+            <!-- 페이지 번호 (현재 ±5) -->
+            <li th:each="pageNum : ${#numbers.sequence(0, paging.totalPages - 1)}"
+                th:if="${pageNum >= paging.number - 5 and pageNum <= paging.number + 5}"
+                class="page-item"
+                th:classappend="${pageNum == paging.number} ? 'active'">
+                <a class="page-link" href="javascript:void(0)"
+                   th:data-page="${pageNum}" th:text="${pageNum + 1}"></a>
+            </li>
+            <!-- 다음 -->
+            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                <a class="page-link" href="javascript:void(0)" th:data-page="${paging.number + 1}">다음</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- 검색 전송용 숨김 폼 -->
+    <form th:action="@{/question/list}" method="get" id="searchForm">
+        <input type="hidden" id="kw" name="kw" th:value="${kw}">
+        <input type="hidden" id="page" name="page" th:value="${paging.number}">
+    </form>
 </main>
-<script></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchForm = document.getElementById("searchForm");
+        const kwInput = document.getElementById("kw");
+        const pageInput = document.getElementById("page");
+        const searchKw = document.getElementById("search_kw");
+        const btnSearch = document.getElementById("btn_search");
+        const pageLinks = document.querySelectorAll(".page-link");
+
+        // 페이지 번호 클릭 → data-page 값을 폼에 넣어 전송 (kw 유지됨)
+        pageLinks.forEach(function (link) {
+            link.addEventListener("click", function () {
+                const page = this.dataset.page;
+                if (page !== undefined) {
+                    pageInput.value = page;
+                    searchForm.submit();
+                }
+            });
+        });
+
+        // 찾기 버튼 클릭 → 검색어 넣고 첫 페이지부터
+        btnSearch.addEventListener("click", function () {
+            kwInput.value = searchKw.value;
+            pageInput.value = 0;
+            searchForm.submit();
+        });
+    });
+</script>
 </body>
 </html>
