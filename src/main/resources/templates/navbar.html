@@ -1,33 +1,28 @@
 <nav th:fragment="navbarFragment" class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-2 border-secondary">
     <div class="container-fluid">
         <a class="navbar-brand text-dark" href="/">Home</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-            <!-- 비로그인 -->
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0" th:unless="${loginMember}">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link text-dark" aria-current="page" th:href="@{/login}">로그인</a>
+                    <div th:if="${loginMember == null}">
+                        <a class="nav-link text-dark" th:href="@{/login}">로그인</a>
+                    </div>
+                    <div th:if="${loginMember}">
+                        <p class="mb-3 fw-bold text-md-end" th:text="|${loginMember.name}님 환영합니다. |"></p>
+                    </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark" th:href="@{/add}">회원가입</a>
+                    <div th:if="${loginMember == null}">
+                        <a class="nav-link text-dark" th:href="@{/add}">회원가입</a>
+                    </div>
+                    <form class="text-start" th:action="@{/logout}" method="post" th:if="${loginMember}">
+                        <button class="btn btn-dark btn-sm">로그아웃</button>
+                    </form>
                 </li>
             </ul>
-
-            <!-- 로그인 -->
-            <div class="d-flex align-items-center gap-2 ms-auto" th:if="${loginMember}">
-                <span class="text-dark" th:text="|${loginMember.name}님 환영합니다.|"></span>
-                <form th:action="@{/logout}" method="post" class="mb-0">
-                    <button class="btn btn-dark btn-sm">로그아웃</button>
-                </form>
-            </div>
-
         </div>
     </div>
 </nav>

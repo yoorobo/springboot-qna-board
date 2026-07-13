@@ -8,12 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;   // ← 이 줄 추가
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,20 +20,38 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/add")
-    public String createForm(Model model) {
+    public String creatForm(Model model){
         model.addAttribute("memberForm", new MemberForm());
         return "user/addMemberForm";
     }
 
+    @PostMapping("/add")
+    public String create(@Valid @ModelAttribute("memberForm") MemberForm memberForm, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            return "user/addMemberForm";
+        }
+        DoMember doMember = new DoMember();
+        doMember.setLoginId(memberForm.getLoginId());
+        doMember.setPassword(memberForm.getPassword());
+        doMember.setName(memberForm.getName());
+        doMember.setGrade("user");
+        memberService.join(doMember);
+        return "redirect:/";
+    }
+
     @GetMapping("/members")
-    public String list(Model model) {
+    public String list(@SessionAttribute(name=SessionConst.LOGIN_MEMBER) DoMember loginMember, Model model){
         List<DoMember> members = memberService.findMemberList();
         model.addAttribute("members", members);
+        model.addAttribute("loginMember", loginMember);
         return "admin/memberList";
     }
-    //수정폼 열기
+
+    //수정폼 열기, http://localhost:8080/members/3/edit
     @GetMapping("/members/{memberId}/edit")
-    public String updateMemberForm(@PathVariable("memberId") Long memberId, Model model) {
+    public String updateMemberForm(
+            @SessionAttribute(name=SessionConst.LOGIN_MEMBER) DoMember loginMember,
+            @PathVariable("memberId") Long memberId, Model model){
         DoMember findMember = memberService.findOneMember(memberId).orElseThrow();
 
         MemberForm memberForm = new MemberForm();
@@ -45,44 +61,33 @@ public class MemberController {
         memberForm.setPassword(findMember.getPassword());
         memberForm.setGrade(findMember.getGrade());
         model.addAttribute("memberForm", memberForm);
-                return "admin/updateMemberForm";
-    }
-    @PostMapping("/add")
-    public String create(@Valid @ModelAttribute("memberForm") MemberForm memberForm, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) {
-            return "user/addMemberForm";
-        }
-        DoMember doMember = new DoMember();
-        doMember.setLoginId(memberForm.getLoginId());
-        doMember.setPassword(memberForm.getPassword());
-        doMember.setName(memberForm.getName());
-        doMember.setGrade("User");
-        memberService.join(doMember);
-        return "redirect:/";
+        model.addAttribute("loginMember", loginMember);
+        return "admin/updateMemberForm";
     }
 
-   //멤버 수정 저장
-   @PostMapping("/members/{memberId}/edit")
-   public String updateMemberSave(@Valid @ModelAttribute("memberForm") MemberForm memberForm, BindingResult bindingResult) {
+    //멤버 수정 저장
+    @PostMapping("/members/{memberId}/edit")
+    public String updateMemberSave(
+            @SessionAttribute(name=SessionConst.LOGIN_MEMBER) DoMember loginMember,
+            @Valid @ModelAttribute("memberForm") MemberForm memberForm,  BindingResult bindingResult, Model model){
 
-        if(bindingResult.hasErrors()) {
+        if(bindingResult.hasErrors()){
             return "admin/updateMemberForm";
         }
 
-       DoMember doMember = memberService.findOneMember(memberForm.getId()).orElseThrow();
+        DoMember doMember = new DoMember();
 
-       doMember.setName(memberForm.getName());
-       doMember.setGrade(memberForm.getGrade());
+        doMember.setId(memberForm.getId());
+        doMember.setLoginId(memberForm.getLoginId());
+        doMember.setName(memberForm.getName());
+        doMember.setPassword(memberForm.getPassword());
+        doMember.setGrade(memberForm.getGrade());
+        memberService.save(doMember);
+        model.addAttribute("loginMember", loginMember);
+        return "redirect:/members";
+    }
 
-       if (memberForm.getPassword() != null && !memberForm.getPassword().isBlank()) {
-           doMember.setPassword(memberForm.getPassword());
-       }
-
-       memberService.save(doMember);   // Service가 save니까 save 그대로
-       return "redirect:/members";
-   }
-
-   //삭제
+    //삭제
     @GetMapping("/members/{memberId}/delete")
     public String delete(@PathVariable("memberId") Long memberId){
 
@@ -90,7 +95,5 @@ public class MemberController {
 
         memberService.delete(findMember.getId());
         return "redirect:/members";
-
     }
-
 }

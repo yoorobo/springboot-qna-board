@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" th:replace="~{layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+  <title>질문등록</title>
+</head>
+<body>
+<main class="container max600">
+  <div class="py-5 text-center">
+    <h2>질문 등록</h2>
+  </div>
+  <form th:action  th:object="${questionForm}"  method="post">
+    <div class="alert alert-danger" role="alert"
+         th:if="${#fields.hasGlobalErrors()}">
+      <div th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="field-error"></div>
+    </div>
+    <div class="mb-3">
+      <label th:for="subject" class="form-label">제목</label>
+      <input type="text" class="form-control" th:field="*{subject}" th:errorclass="field-error">
+      <div th:errors="*{subject}" class="field-error"></div>
+    </div>
+    <div class="mb-3">
+      <label th:for="content" class="form-label">내용</label>
+      <textarea class="form-control" th:field="*{content}" rows="3" th:errorclass="field-error"></textarea>
+      <div th:errors="*{content}" class="field-error"></div>
+    </div>
+    <button type="submit" class="btn btn-dark my-2">저장하기</button>
+  </form>
+</main>
+<script></script>
+</body>
+</html>

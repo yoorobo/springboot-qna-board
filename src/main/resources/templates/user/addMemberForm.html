@@ -1,49 +1,41 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<html lang="ko" th:replace="~{layout :: layout(~{::title}, ~{::main}, ~{::script})}">
 <head>
     <title>회원 가입</title>
 </head>
 <body>
 <main class="container max600">
-
     <div class="py-5 text-center">
         <h2>회원 가입</h2>
     </div>
-
     <h4 class="mb-3">회원 정보 입력</h4>
-
-    <form th:action th:object="${memberForm}" method="post">
+    <form th:action  th:Object="${memberForm}"  method="post">
         <div class="mb-3">
             <label th:for="loginId" class="form-label">로그인 ID</label>
-            <!-- name="loginId" : 서버로 값 보낼 때의 이름표 (★ 없으면 저장 안 됨) -->
             <input type="text" class="form-control" th:field="*{loginId}">
             <div th:errors="*{loginId}" class="field-error"></div>
         </div>
-
         <div class="mb-3">
-            <label th:for="password" class="form-label">비밀번호</label>
-            <!-- name="password" : 이 이름으로 서버에 전송됨 -->
+            <label th:for="password" class="form-label">Password</label>
             <input type="password" class="form-control" th:field="*{password}">
             <div th:errors="*{password}" class="field-error"></div>
         </div>
-
         <div class="mb-3">
-            <label th:for="name" class="form-label">이름</label>
-            <!-- name="name" : 이 이름으로 서버에 전송됨 -->
+            <label class="form-label" th:for="name">이름</label>
             <input type="text" class="form-control" th:field="*{name}">
             <div th:errors="*{name}" class="field-error"></div>
         </div>
-
         <div class="row">
             <div class="col">
-                <button type="submit" class="w-100 btn btn-primary btn-lg">회원가입</button>
+                <button type="submit" class="w-100 btn btn-primary">회원가입</button>
             </div>
             <div class="col">
-                <a th:href="@{/}" class="w-100 btn btn-secondary btn-lg">취소</a>
+                <button type="button" class="w-100 btn btn-secondary"
+                        th:onclick="|location.href='@{/}'|">취소</button>
             </div>
         </div>
     </form>
 </main>
+<script></script>
 </body>
 </html>

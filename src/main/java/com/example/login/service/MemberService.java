@@ -1,11 +1,12 @@
 package com.example.login.service;
 
-import java.util.List;
-import java.util.Optional;
 import com.example.login.domain.DoMember;
 import com.example.login.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class MemberService {
         return member.getId();
     }
 
-    //회원 업데이트
+    //회원업데이트
     public Long save(DoMember member){
         memberRepository.save(member);
         return member.getId();
@@ -34,7 +35,7 @@ public class MemberService {
         }
     }
 
-    //전체회의 조회
+    //전체회원조회
     public List<DoMember> findMemberList(){
         return memberRepository.findAll();
     }
@@ -48,6 +49,7 @@ public class MemberService {
     public void delete(Long memberId){
         memberRepository.deleteById(memberId);
     }
+
 
 
 }

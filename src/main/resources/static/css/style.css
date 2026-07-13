@@ -3,10 +3,10 @@
 }
 
 .field-error {
-    border-color: #d95050;
-    color: #d95050;
+    border-color: #ff2245;
+    color: #ff2245;
 }
 
-input[readonly] {
-    background-color: #9b9ea5;
+.form-control[readonly] {
+    background-color: #9f9f9f;
 }

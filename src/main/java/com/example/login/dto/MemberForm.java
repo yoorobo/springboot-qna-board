@@ -9,7 +9,6 @@ public class MemberForm {
 
     private Long id;
 
-
     @NotEmpty
     private String loginId;
 
@@ -20,5 +19,4 @@ public class MemberForm {
     private String password;
 
     private String grade;
-
 }
