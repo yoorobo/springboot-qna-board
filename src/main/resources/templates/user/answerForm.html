@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" th:replace="~{layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>답변 수정</title>
+</head>
+<body>
+<main class="container max600">
+    <div class="py-5 text-center">
+        <h2>답변 수정</h2>
+    </div>
+    <!-- th:action 값 없음 → 현재 URL(/answer/modify/{id})로 POST -->
+    <form th:action th:object="${answerForm}" method="post">
+        <div class="mb-3">
+            <label th:for="content" class="form-label">내용</label>
+            <textarea class="form-control" th:field="*{content}" rows="5" th:errorclass="field-error"></textarea>
+            <div th:errors="*{content}" class="field-error"></div>
+        </div>
+        <button type="submit" class="btn btn-dark my-2">저장하기</button>
+    </form>
+</main>
+<script></script>
+</body>
+</html>

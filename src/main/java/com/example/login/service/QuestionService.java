@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -65,5 +66,18 @@ public class QuestionService {
     //질문 1건 조회
     public Optional<Question> getQuestion(Long id){
         return questionRepository.findById(id);
+    }
+
+    //질문 수정
+    public void modify(Question question, String subject, String content){
+        question.setSubject(subject);
+        question.setContent(content);
+        question.setModifyDate(LocalDateTime.now());   // 수정 시각 기록
+        questionRepository.save(question);             // 같은 id → update
+    }
+
+    //질문 삭제 (연관 답변도 함께 삭제됨 — cascade)
+    public void delete(Question question) {
+        questionRepository.delete(question);
     }
 }

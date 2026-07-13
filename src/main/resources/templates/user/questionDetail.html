@@ -21,6 +21,38 @@
                     <div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}">작성일</div>
                 </div>
             </div>
+            <!-- 질문 수정/삭제 버튼: 로그인사용자 == 작성자일 때만 표시 -->
+            <div class="my-3">
+                <a th:href="@{|/question/modify/${question.id}|}"
+                   class="btn btn-sm btn-outline-secondary"
+                   th:if="${loginMember != null and question.author != null
+                            and loginMember.loginId == question.author.loginId}">수정</a>
+                <!-- 삭제: 바로 이동 X, 모달을 여는 버튼 -->
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal" data-bs-target="#questionDeleteModal"
+                        th:if="${loginMember != null and question.author != null
+                                 and loginMember.loginId == question.author.loginId}">삭제</button>
+            </div>
+
+            <!-- 질문 삭제 확인 모달 -->
+            <div class="modal fade" id="questionDeleteModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">삭제 확인</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            정말로 이 질문을 삭제하시겠습니까? 답변도 함께 삭제됩니다.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                            <!-- 확인 = 실제 삭제 주소로 이동 -->
+                            <a th:href="@{|/question/delete/${question.id}|}" class="btn btn-danger">삭제</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -36,6 +68,36 @@
                 <div class="badge bg-light text-dark p-2 text-start">
                     <div th:text="${answer.author != null ? answer.author.loginId : 'Unknown'}">작성자</div>
                     <div th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}">작성일</div>
+                </div>
+            </div>
+            <!-- 답변 수정/삭제 버튼: 반복문 안 → answer 변수 사용 가능 -->
+            <div class="my-3">
+                <a th:href="@{|/answer/modify/${answer.id}|}"
+                   class="btn btn-sm btn-outline-secondary"
+                   th:if="${loginMember != null and answer.author != null
+                            and loginMember.loginId == answer.author.loginId}">수정</a>
+                <!-- 답변 삭제: 모달 id에 answer.id를 붙여 답변마다 다르게 -->
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        th:attr="data-bs-target=|#answerDeleteModal${answer.id}|"
+                        data-bs-toggle="modal"
+                        th:if="${loginMember != null and answer.author != null
+                                 and loginMember.loginId == answer.author.loginId}">삭제</button>
+            </div>
+
+            <!-- 답변 삭제 확인 모달 (답변별 고유 id) -->
+            <div class="modal fade" th:id="|answerDeleteModal${answer.id}|" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">삭제 확인</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">정말로 이 답변을 삭제하시겠습니까?</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                            <a th:href="@{|/answer/delete/${answer.id}|}" class="btn btn-danger">삭제</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

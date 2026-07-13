@@ -53,6 +53,57 @@ public class QuestionController {
         return "redirect:/question/list";
     }
 
+    //질문 수정 폼 열기
+    @GetMapping("/question/modify/{id}")
+    public String questionModifyForm(
+            @PathVariable("id") Long id,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
+            Model model){
+
+        Question question = questionService.getQuestion(id).orElseThrow();
+
+        // 등록 폼(questionForm) 재사용 → 기존 값 채워서 전달
+        QuestionForm questionForm = new QuestionForm();
+        questionForm.setSubject(question.getSubject());
+        questionForm.setContent(question.getContent());
+
+        model.addAttribute("questionForm", questionForm);
+        model.addAttribute("loginMember", loginMember);
+        return "user/questionForm";
+    }
+
+    //질문 수정 저장
+    @PostMapping("/question/modify/{id}")
+    public String questionModify(
+            @PathVariable("id") Long id,
+            @Valid @ModelAttribute("questionForm") QuestionForm questionForm,
+            BindingResult bindingResult,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
+            Model model){
+
+        if(bindingResult.hasErrors()){
+            model.addAttribute("loginMember", loginMember);
+            return "user/questionForm";
+        }
+
+        Question question = questionService.getQuestion(id).orElseThrow();
+        questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
+
+        return "redirect:/question/detail/" + id;   // 수정 후 상세로
+    }
+
+    //질문 삭제
+    @GetMapping("/question/delete/{id}")
+    public String questionDelete(
+            @PathVariable("id") Long id,
+            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember) {
+
+        Question question = questionService.getQuestion(id).orElseThrow();
+        questionService.delete(question);
+
+        return "redirect:/question/list";   // 삭제 후엔 상세가 아니라 목록으로
+    }
+
     //목록보기 (페이징 + 검색)
     @GetMapping("/question/list")
     public String list(
