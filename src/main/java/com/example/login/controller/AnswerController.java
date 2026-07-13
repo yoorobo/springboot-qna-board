@@ -1,5 +1,6 @@
 package com.example.login.controller;
 
+import com.example.login.domain.Answer;
 import com.example.login.domain.DoMember;
 import com.example.login.domain.Question;
 import com.example.login.dto.AnswerForm;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,13 +34,18 @@ public class AnswerController {
         Question question = questionService.getQuestion(questionId).orElseThrow();
 
         if (bindingResult.hasErrors()) {                    // 빈 답변 → 상세페이지 재표시
-            model.addAttribute("question", question);       // 질문 데이터 다시 담기 (화면 안 깨지게)
+            model.addAttribute("question", question);       // 질문 데이터 다시 담기
             model.addAttribute("loginMember", loginMember);
             return "user/questionDetail";
         }
 
-        answerService.create(question, answerForm.getContent(), loginMember);
+        Answer answer = new Answer();
+        answer.setContent(answerForm.getContent());
+        answer.setCreateDate(LocalDateTime.now());
+        answer.setQuestion(question);                       // 어느 질문의 답변인지
+        answer.setAuthor(loginMember);                      // 작성자 = 세션 사용자
+        answerService.create(answer);
 
-        return "redirect:/question/detail/" + questionId;   // 다시 그 질문 상세로
+        return "redirect:/question/detail/" + questionId;   // 그 질문 상세로
     }
 }
