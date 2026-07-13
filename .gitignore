@@ -37,3 +37,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### 로컬 비밀정보 ###
+# 참고: Spring Boot는 .env를 자동 로딩하지 않습니다(방어적 무시 목적).
+# 비밀번호는 환경변수 DB_PASSWORD로 주입합니다.
+.env
+application-local.yaml
+application-local.yml

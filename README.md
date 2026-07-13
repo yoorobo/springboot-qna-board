@@ -35,14 +35,14 @@ Spring Boot + JPA + Thymeleaf + MySQL 기반의 학습용 웹 애플리케이션
 
 ### 2.1 사전 준비 — MySQL
 
-`src/main/resources/application.yaml`에 설정된 접속 정보 그대로입니다.
+`src/main/resources/application.yaml`의 접속 정보입니다. **비밀번호는 환경변수 `DB_PASSWORD`로 주입**하며, 파일에 평문으로 두지 않습니다.
 
 ```yaml
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
-    password: 1234
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 ```
 
@@ -52,7 +52,33 @@ spring:
 CREATE DATABASE test DEFAULT CHARACTER SET utf8mb4;
 ```
 
-### 2.2 실행
+### 2.2 환경변수 설정 — `DB_PASSWORD`
+
+MySQL 접속 비밀번호를 환경변수로 지정해야 합니다. 설정하지 않으면 빈 문자열로 접속을 시도해 기동에 실패합니다.
+
+**IntelliJ IDEA — 실행 구성(Run Configuration)**
+
+1. 상단 실행 구성 드롭다운 → **Edit Configurations…**
+2. `LoginApplication` 선택
+3. **Environment variables** 항목에 입력:
+   ```
+   DB_PASSWORD=your_password
+   ```
+4. **Apply** → **OK** 후 실행
+
+**터미널에서 실행하는 경우**
+
+```bash
+# PowerShell
+$env:DB_PASSWORD="your_password"; ./gradlew bootRun
+
+# bash
+DB_PASSWORD=your_password ./gradlew bootRun
+```
+
+> 설정 예시는 `src/main/resources/application.yaml.example` 참고.
+
+### 2.3 실행
 
 ```bash
 ./gradlew bootRun          # 또는 IDE에서 LoginApplication 실행
@@ -60,7 +86,7 @@ CREATE DATABASE test DEFAULT CHARACTER SET utf8mb4;
 
 기동 후 <http://localhost:8080> 접속.
 
-### 2.3 ⚠️ `ddl-auto: update` 주의
+### 2.4 ⚠️ `ddl-auto: update` 주의
 
 ```yaml
 spring.jpa.hibernate.ddl-auto: update
