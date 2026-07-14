@@ -5,6 +5,7 @@
 ![Java](https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F?logo=springboot&logoColor=white)
 ![Spring Data JPA](https://img.shields.io/badge/Spring%20Data%20JPA-6DB33F?logo=spring&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-6DB33F?logo=springsecurity&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql&logoColor=white)
 ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-005F0F?logo=thymeleaf&logoColor=white)
 
@@ -14,8 +15,8 @@
 
 ## 📌 3줄 요약
 
-- **What** — 회원가입·세션 인증부터 질문/답변 CRUD, 검색, 페이징, 관리자 노출 제어까지 갖춘 서버사이드 렌더링 Q&A 게시판.
-- **Why** — KDT 과정에서 프레임워크의 "마법"에 기대지 않고, 인증과 CRUD가 실제로 어떻게 동작하는지 원리를 직접 구현하며 학습하기 위해 만들었습니다.
+- **What** — 회원가입·로그인부터 질문/답변 CRUD, 검색, 페이징, 관리자 노출 제어까지 갖춘 서버사이드 렌더링 Q&A 게시판.
+- **Why** — KDT 과정에서 프레임워크의 "마법"에 기대지 않고, 인증과 CRUD가 실제로 어떻게 동작하는지 원리를 직접 구현하며 학습하기 위해 만들었습니다. 인증은 **세션 기반으로 직접 구현한 뒤 Spring Security로 전환**해, 두 시점을 태그로 남겼습니다 ([인증 구현 변천사](#-인증-구현-변천사-v1--v2)).
 - **How** — 레이어드 아키텍처(Controller · Service · Repository)와 Thymeleaf 서버사이드 렌더링으로 구성했고, 커밋은 기능 단위의 원자 커밋으로 관리했습니다.
 
 ---
@@ -24,11 +25,12 @@
 
 1. [핵심 기능](#-핵심-기능)
 2. [아키텍처](#-아키텍처)
-3. [기술적 의사결정](#-기술적-의사결정)
-4. [트러블슈팅](#-트러블슈팅)
-5. [실행 방법](#-실행-방법)
-6. [알려진 한계와 개선 계획](#-알려진-한계와-개선-계획)
-7. [문서 & 커밋 컨벤션](#-문서--커밋-컨벤션)
+3. [인증 구현 변천사 (v1 → v2)](#-인증-구현-변천사-v1--v2)
+4. [기술적 의사결정](#-기술적-의사결정)
+5. [트러블슈팅](#-트러블슈팅)
+6. [실행 방법](#-실행-방법)
+7. [알려진 한계와 개선 계획](#-알려진-한계와-개선-계획)
+8. [문서 & 커밋 컨벤션](#-문서--커밋-컨벤션)
 
 ---
 
@@ -36,7 +38,7 @@
 
 | 기능 | 설명 | 관련 코드 |
 |---|---|---|
-| 회원가입 / 로그인 | 세션 기반 인증, 중복 검증 | [`MemberController`](src/main/java/com/example/login/controller/MemberController.java) · [`LoginController`](src/main/java/com/example/login/controller/LoginController.java) |
+| 회원가입 / 로그인 | Spring Security 인증, BCrypt 해시, 중복 검증 | [`SecurityConfig`](src/main/java/com/example/login/SecurityConfig.java) · [`LoginService`](src/main/java/com/example/login/service/LoginService.java) · [`MemberController`](src/main/java/com/example/login/controller/MemberController.java) |
 | 질문 CRUD | 질문 등록·조회·수정·삭제, 목록/상세 뷰 | [`QuestionController`](src/main/java/com/example/login/controller/QuestionController.java) |
 | 답변 CRUD | 질문에 종속된 답변 등록·수정·삭제 | [`AnswerController`](src/main/java/com/example/login/controller/AnswerController.java) |
 | 수정 (폼 재사용) | 등록 폼을 재사용해 수정 처리 (단일 템플릿) | [`questionForm.html`](src/main/resources/templates/user/questionForm.html) |
@@ -57,11 +59,38 @@
 
 ![레이어드 아키텍처](docs/design/images/01_component_architecture_v2.png)
 
-요청은 `Controller → Service → Repository → DB`로 **단방향 의존**만 흐르도록 구성했습니다. 도메인 로직은 Service에 모으고, Controller는 요청/응답 변환과 뷰 바인딩만 담당합니다. 인증은 세션 기반으로 처리하며, 로그인 여부·권한 같은 **횡단 관심사**는 컨트롤러 로직과 분리해 다뤘습니다. 뷰는 Thymeleaf 서버사이드 렌더링으로, 프래그먼트를 재사용해 화면 간 중복을 줄였습니다.
+요청은 `Controller → Service → Repository → DB`로 **단방향 의존**만 흐르도록 구성했습니다. 도메인 로직은 Service에 모으고, Controller는 요청/응답 변환과 뷰 바인딩만 담당합니다. 인증은 처음에 세션 기반으로 직접 구현했다가 이후 Spring Security로 전환했으며(자세한 내용은 [인증 구현 변천사](#-인증-구현-변천사-v1--v2)), 로그인 여부·권한 같은 **횡단 관심사**는 컨트롤러 로직과 분리해 다뤘습니다. 뷰는 Thymeleaf 서버사이드 렌더링으로, 프래그먼트를 재사용해 화면 간 중복을 줄였습니다.
 
 ![ERD](docs/design/images/02_erd.png)
 
 > 세부 흐름을 담은 시퀀스 다이어그램 4종(로그인, 질문 등록, 질문 상세, 답변 등록)은 [`docs/design/images/`](docs/design/images)에서 확인할 수 있습니다. 설계 문서는 게시판 1차 구현(`aef9d98`) 시점 기준이며, 이후 추가된 수정·삭제·검색 기능은 아래 섹션에 반영되어 있습니다.
+
+---
+
+## 🔐 인증 구현 변천사 (v1 → v2)
+
+이 저장소의 인증은 **두 단계**를 거쳤습니다. 먼저 세션 인증을 프레임워크 도움 없이 직접 구현해 로그인이 실제로 무엇을 하는 일인지 확인했고(**v1**), 그 다음 같은 요구사항을 Spring Security로 대체했습니다(**v2**). 두 시점 모두 태그로 남겨 두었으니 코드를 직접 비교해 볼 수 있습니다.
+
+| | **v1 — 세션 기반 수제 인증** | **v2 — Spring Security** |
+|---|---|---|
+| 인증 처리 | `LoginController.login()`에서 직접 구현 | 시큐리티 필터 체인이 `POST /login` 처리 |
+| 자격 증명 검증 | `LoginService.login()` — 아이디 조회 후 `password.equals()` | `LoginService implements UserDetailsService` — 시큐리티가 검증 |
+| 비밀번호 저장 | **평문** | `DelegatingPasswordEncoder` (BCrypt 해시) |
+| 세션 관리 | `HttpSession`에 `setAttribute` / `invalidate()` 수동 호출 | 시큐리티가 `SecurityContext` 관리 |
+| 로그아웃 | `POST /logout` 핸들러 직접 작성 | `.logout()` 설정 한 줄 |
+| 로그인 사용자 뷰 주입 | `GlobalModelAdvice` — `@SessionAttribute` 기반 | `LoginMemberAdvice` — `Authentication` 기반 |
+| 권한 표현 | `grade` 문자열("admin"/"user")을 뷰에서 직접 비교 | `UserRoll` enum → `ROLE_ADMIN` / `ROLE_USER` 권한 객체 |
+| URL 접근 제어 | **없음** (뷰에서 버튼만 숨김) | `authorizeHttpRequests` — 공개 경로 외 인증 필수 |
+
+**서사 —** v1은 인증의 **원리를 학습하기 위한 밑바닥 구현**입니다. 세션이 어디에 저장되고 언제 만들어지는지, 로그인 상태가 요청마다 어떻게 이어지는지를 직접 코드로 겪어 보는 것이 목적이었습니다. 그 이해를 얻고 나서 v2에서 같은 기능을 **표준 프레임워크로 대체**했습니다. 결과적으로 인증 관련 코드는 줄었고(로그인·로그아웃 핸들러와 `SessionConst`가 통째로 사라짐), 평문 비밀번호와 URL 접근 제어 부재처럼 **직접 구현할 때 놓쳤던 보안 결함이 프레임워크 기본값으로 메워졌습니다.** "프레임워크를 쓰면 편하다"가 아니라 **"직접 해봤기 때문에 프레임워크가 무엇을 대신해 주는지 안다"**가 이 두 단계의 요점입니다.
+
+**코드로 확인하기**
+
+| 시점 | 태그 / 브랜치 |
+|---|---|
+| v1 (세션 인증 최종본) | [`v1-session-auth`](https://github.com/yoorobo/springboot-qna-board/tree/v1-session-auth) · 브랜치 [`session-auth`](https://github.com/yoorobo/springboot-qna-board/tree/session-auth) |
+| v2 (시큐리티 전환) | [`v2-spring-security`](https://github.com/yoorobo/springboot-qna-board/tree/v2-spring-security) |
+| 전체 diff | [`v1-session-auth...v2-spring-security`](https://github.com/yoorobo/springboot-qna-board/compare/v1-session-auth...v2-spring-security) |
 
 ---
 
@@ -136,8 +165,11 @@ DB_PASSWORD=your_password
 
 ## ⚠ 알려진 한계와 개선 계획
 
-- **[1순위] 수정/삭제 서버측 권한 검증 부재** — 현재 작성자 확인이 뷰 레벨(버튼 노출)에서만 이뤄집니다. 요청을 직접 보내면 우회 가능하므로, 인터셉터로 서버측 권한 검증을 추가할 예정입니다.
-- **비밀번호 평문 저장** — 회원 비밀번호가 평문으로 저장됩니다. 단방향 해시(BCrypt) 적용으로 개선할 계획입니다.
+> v2(Spring Security 전환)로 **비밀번호 평문 저장**과 **URL 접근 제어 부재**는 해소되었습니다. 아래는 남아 있는 항목입니다.
+
+- **[1순위] 수정/삭제 작성자 검증 부재** — 시큐리티 도입으로 "로그인해야 접근 가능"까지는 걸렸지만, **글쓴이 본인인지**는 서버에서 확인하지 않습니다. 작성자 확인이 여전히 뷰 레벨(버튼 노출)에만 있어, 로그인한 다른 사용자가 `/question/delete/{id}`를 직접 호출하면 남의 글을 지울 수 있습니다. 컨트롤러에서 작성자 일치 검증을 추가할 예정입니다.
+- **[2순위] 회원 수정 시 비밀번호 이중 해싱** — 회원 수정 폼이 DB의 **이미 해시된** 비밀번호를 폼에 그대로 채우고([`MemberController#updateMemberForm`](src/main/java/com/example/login/controller/MemberController.java)), 저장 시 그 값을 **다시 인코딩**합니다. 그 결과 수정된 회원은 기존 비밀번호로 로그인할 수 없게 됩니다. 비밀번호를 수정 폼에서 분리하고, 입력이 있을 때만 재인코딩하도록 고칠 예정입니다.
+- **관리자 전용 URL 규칙 부재** — `UserRoll` enum으로 `ROLE_ADMIN` 권한은 부여하지만, `/members` 같은 관리자 경로에 `hasRole("ADMIN")` 규칙을 걸지 않았습니다. 노출 제어가 뷰 레벨에 머물러 있어, 시큐리티 인가 규칙으로 끌어올릴 예정입니다.
 - **`loginId` UNIQUE 제약 부재** — 아이디 중복을 애플리케이션 검증에만 의존합니다. DB에 UNIQUE 제약을 추가해 정합성을 보강할 예정입니다.
 - **N+1 (EAGER)** — 일부 연관관계가 EAGER 로딩이라 조회 시 추가 쿼리가 발생합니다. LAZY 전환과 fetch join으로 개선할 계획입니다.
 
