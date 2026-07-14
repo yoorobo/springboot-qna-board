@@ -14,7 +14,6 @@
             <th scope="col">#</th>
             <th scope="col">아이디</th>
             <th scope="col">이름</th>
-            <th scope="col">비밀번호</th>
             <th scope="col">등급</th>
             <th scope="col">수정</th>
             <th scope="col">삭제</th>
@@ -25,11 +24,10 @@
             <th th:text="${member.getId()}">번호</th>
             <td th:text="${member.loginId}">아이디</td>
             <td th:text="${member.name}">이름</td>
-            <td th:text="${member.password}">비밀번호</td>
             <td th:text="${member.getGrade()}">등급</td>
             <td>
                 <a th:href="@{/members/{id}/edit (id=${member.getId()})}"
-                class="btn btn-primary" role="button">수정</a>
+                   class="btn btn-primary" role="button">수정</a>
             </td>
             <td>
                 <a th:href="@{/members/{id}/delete (id=${member.getId()})}"

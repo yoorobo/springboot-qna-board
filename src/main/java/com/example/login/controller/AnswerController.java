@@ -5,9 +5,11 @@ import com.example.login.domain.DoMember;
 import com.example.login.domain.Question;
 import com.example.login.dto.AnswerForm;
 import com.example.login.service.AnswerService;
+import com.example.login.service.MemberService;
 import com.example.login.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,6 +23,7 @@ public class AnswerController {
 
     private final QuestionService questionService;
     private final AnswerService answerService;
+    private final MemberService memberService;
 
     //답변 등록
     @PostMapping("/answer/create/{questionId}")
@@ -28,22 +31,24 @@ public class AnswerController {
             @PathVariable("questionId") Long questionId,
             @Valid @ModelAttribute("answerForm") AnswerForm answerForm,
             BindingResult bindingResult,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
+            Authentication authentication,
             Model model) {
 
         Question question = questionService.getQuestion(questionId).orElseThrow();
 
         if (bindingResult.hasErrors()) {                    // 빈 답변 → 상세페이지 재표시
             model.addAttribute("question", question);       // 질문 데이터 다시 담기
-            model.addAttribute("loginMember", loginMember);
             return "user/questionDetail";
         }
+
+        //시큐리티가 인증한 로그인 아이디로 작성자 조회
+        DoMember loginMember = memberService.findByLoginId(authentication.getName()).orElseThrow();
 
         Answer answer = new Answer();
         answer.setContent(answerForm.getContent());
         answer.setCreateDate(LocalDateTime.now());
         answer.setQuestion(question);                       // 어느 질문의 답변인지
-        answer.setAuthor(loginMember);                      // 작성자 = 세션 사용자
+        answer.setAuthor(loginMember);                      // 작성자 = 인증된 사용자
         answerService.create(answer);
 
         return "redirect:/question/detail/" + questionId;   // 그 질문 상세로
@@ -53,7 +58,6 @@ public class AnswerController {
     @GetMapping("/answer/modify/{id}")
     public String answerModifyForm(
             @PathVariable("id") Long id,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
             Model model) {
 
         Answer answer = answerService.getAnswer(id).orElseThrow();
@@ -63,7 +67,6 @@ public class AnswerController {
         answerForm.setContent(answer.getContent());
 
         model.addAttribute("answerForm", answerForm);
-        model.addAttribute("loginMember", loginMember);
         return "user/answerForm";
     }
 
@@ -72,12 +75,9 @@ public class AnswerController {
     public String answerModify(
             @PathVariable("id") Long id,
             @Valid @ModelAttribute("answerForm") AnswerForm answerForm,
-            BindingResult bindingResult,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
-            Model model) {
+            BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("loginMember", loginMember);
             return "user/answerForm";
         }
 
@@ -90,9 +90,7 @@ public class AnswerController {
 
     //답변 삭제
     @GetMapping("/answer/delete/{id}")
-    public String answerDelete(
-            @PathVariable("id") Long id,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember) {
+    public String answerDelete(@PathVariable("id") Long id) {
 
         Answer answer = answerService.getAnswer(id).orElseThrow();
         Long questionId = answer.getQuestion().getId();   // 삭제 전에 질문 id 확보!

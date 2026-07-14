@@ -45,11 +45,13 @@ public class MemberService {
         return memberRepository.findById(memberId);
     }
 
+    //로그인 아이디로 회원 조회 (전역 loginMember 주입용)
+    public Optional<DoMember> findByLoginId(String loginId){
+        return memberRepository.findByLoginId(loginId);
+    }
+
     //회원 삭제
     public void delete(Long memberId){
         memberRepository.deleteById(memberId);
     }
-
-
-
 }

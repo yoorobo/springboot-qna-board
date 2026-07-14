@@ -4,10 +4,12 @@ import com.example.login.domain.DoMember;
 import com.example.login.domain.Question;
 import com.example.login.dto.AnswerForm;
 import com.example.login.dto.QuestionForm;
+import com.example.login.service.MemberService;
 import com.example.login.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,12 +22,12 @@ import java.time.LocalDateTime;
 public class QuestionController {
 
     private final QuestionService questionService;
+    private final MemberService memberService;
 
     //질문등록폼 열기
     @GetMapping("/question/create")
-    public String questionCreateForm(@SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember, Model model) {
+    public String questionCreateForm(Model model) {
         model.addAttribute("questionForm", new QuestionForm());
-        model.addAttribute("loginMember", loginMember);
         return "user/questionForm";
     }
 
@@ -34,13 +36,14 @@ public class QuestionController {
     public String questionCreate(
             @Valid @ModelAttribute("questionForm") QuestionForm questionForm,
             BindingResult bindingResult,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER) DoMember loginMember,
-            Model model) {
+            Authentication authentication) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("loginMember", loginMember);
             return "user/questionForm";
         }
+
+        //시큐리티가 인증한 로그인 아이디로 작성자 조회
+        DoMember loginMember = memberService.findByLoginId(authentication.getName()).orElseThrow();
 
         Question question = new Question();
         question.setSubject(questionForm.getSubject());
@@ -57,7 +60,6 @@ public class QuestionController {
     @GetMapping("/question/modify/{id}")
     public String questionModifyForm(
             @PathVariable("id") Long id,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
             Model model){
 
         Question question = questionService.getQuestion(id).orElseThrow();
@@ -68,7 +70,6 @@ public class QuestionController {
         questionForm.setContent(question.getContent());
 
         model.addAttribute("questionForm", questionForm);
-        model.addAttribute("loginMember", loginMember);
         return "user/questionForm";
     }
 
@@ -77,12 +78,9 @@ public class QuestionController {
     public String questionModify(
             @PathVariable("id") Long id,
             @Valid @ModelAttribute("questionForm") QuestionForm questionForm,
-            BindingResult bindingResult,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
-            Model model){
+            BindingResult bindingResult){
 
         if(bindingResult.hasErrors()){
-            model.addAttribute("loginMember", loginMember);
             return "user/questionForm";
         }
 
@@ -94,9 +92,7 @@ public class QuestionController {
 
     //질문 삭제
     @GetMapping("/question/delete/{id}")
-    public String questionDelete(
-            @PathVariable("id") Long id,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember) {
+    public String questionDelete(@PathVariable("id") Long id) {
 
         Question question = questionService.getQuestion(id).orElseThrow();
         questionService.delete(question);
@@ -109,27 +105,24 @@ public class QuestionController {
     public String list(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
             Model model) {
 
         Page<Question> paging = questionService.getList(page, kw);
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);          // 검색 후에도 입력창에 검색어 유지용
-        model.addAttribute("loginMember", loginMember);
 
         return "user/questionList";
     }
+
     //상세페이지
     @GetMapping("/question/detail/{id}")
     public String detail(
             @PathVariable("id") Long id,
-            @SessionAttribute(name = SessionConst.LOGIN_MEMBER, required = false) DoMember loginMember,
             Model model) {
 
         Question question = questionService.getQuestion(id).orElseThrow();
         model.addAttribute("question", question);
         model.addAttribute("answerForm", new AnswerForm());
-        model.addAttribute("loginMember", loginMember);
 
         return "user/questionDetail";
     }

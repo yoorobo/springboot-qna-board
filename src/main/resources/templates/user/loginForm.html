@@ -8,22 +8,19 @@
     <div class="py-5 text-center">
         <h2>로그인</h2>
     </div>
-    <form th:action  th:Object="${loginForm}"  method="post">
-        <div th:if="${#fields.hasGlobalErrors()}">
-            <p class="field-error"
-            th:each="err : ${#fields.globalErrors()}"
-            th:text="${err}"
-            ></p>
+    <!-- 시큐리티 방식: th:object/th:field 제거, 순수 name 속성 사용 -->
+    <form th:action="@{/login}" method="post">
+        <!-- 로그인 실패 시 시큐리티가 /login?error 로 보냄 → param.error로 감지 -->
+        <div th:if="${param.error}">
+            <p class="alert alert-danger">사용자 ID 또는 비밀번호 오류입니다.</p>
         </div>
         <div class="mb-3">
             <label th:for="loginId" class="form-label">로그인 ID</label>
-            <input type="text" class="form-control" th:field="*{loginId}">
-            <div th:errors="*{loginId}" class="field-error"></div>
+            <input type="text" id="loginId" name="loginId" class="form-control">
         </div>
         <div class="mb-3">
             <label th:for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" th:field="*{password}">
-            <div th:errors="*{password}" class="field-error"></div>
+            <input type="password" id="password" name="password" class="form-control">
         </div>
         <div class="row">
             <div class="col">
