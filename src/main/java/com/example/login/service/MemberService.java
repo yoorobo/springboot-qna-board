@@ -3,6 +3,7 @@ package com.example.login.service;
 import com.example.login.domain.DoMember;
 import com.example.login.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     //회원가입
     public Long join(DoMember member){
@@ -53,5 +55,29 @@ public class MemberService {
     //회원 삭제
     public void delete(Long memberId){
         memberRepository.deleteById(memberId);
+    }
+
+    //카카오 회원 저장
+    public DoMember joinKakaoMember(String kakaoId, String nickname){
+        DoMember doMember = new DoMember();
+
+        doMember.setLoginId(kakaoId);
+        doMember.setName(nickname);
+        doMember.setPassword(passwordEncoder.encode("KAKAO_USER"));
+        doMember.setGrade("user");
+
+        return memberRepository.save(doMember);
+    }
+
+    //구글 회원 저장
+    public DoMember joinGoogleMember(String googleId, String name){
+        DoMember doMember = new DoMember();
+
+        doMember.setLoginId(googleId);
+        doMember.setName(name);
+        doMember.setPassword(passwordEncoder.encode("GOOGLE_USER"));
+        doMember.setGrade("user");
+
+        return memberRepository.save(doMember);
     }
 }

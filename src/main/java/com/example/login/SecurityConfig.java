@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/images/**", "/js/**").permitAll()
                         .requestMatchers("/", "/add", "/error/**").permitAll()
+                        .requestMatchers("/oauth/**").permitAll()   // ← 카카오 로그인 시작 + callback (비로그인 접근 필수)
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login").permitAll()      // ← 로그인 '페이지 주소'

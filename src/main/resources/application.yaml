@@ -26,3 +26,12 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+kakao:
+  client-id: ca8715facf6d185a27dd1950cb2fb038
+  redirect-uri: http://localhost:8080/oauth/kakao/callback
+
+google:
+  client-id: 654797952619-fn04qa7iegu9if8ehg4vi1p5ir9feg69.apps.googleusercontent.com
+  client-secret: ${GOOGLE_CLIENT_SECRET:}
+  redirect-uri: http://localhost:8080/oauth/google/callback
