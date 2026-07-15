@@ -1,5 +1,7 @@
 # SA — 컴포넌트 아키텍처 (레이어드)
 
+> ⚠️ **현행 코드와 일부 불일치** — 해당 설계 문서는 Spring Security 및 OAuth2 도입 전 코드(기준 커밋 `aef9d98`) 기준이며, 현재 인증 구조와 일부 불일치합니다. 현행 인증·소셜 로그인 흐름은 [`../../README.md`](../../README.md)와 [`../oauth-login-flow.md`](../oauth-login-flow.md)를 참고하세요.
+
 - 기준 커밋: `aef9d98`
 - 근거: 각 클래스의 실제 `import` 문과 `@RequiredArgsConstructor` + `private final` 필드 주입
 - 총 클래스 23종 (컨트롤러 6 + 상수 2 + 서비스 4 + 리포지토리 3 + 엔티티 3 + DTO 4 + 부트스트랩 1)

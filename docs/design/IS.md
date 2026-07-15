@@ -1,5 +1,7 @@
 # IS — 인터페이스 명세 (Interface Specification)
 
+> ⚠️ **현행 코드와 일부 불일치** — 해당 설계 문서는 Spring Security 및 OAuth2 도입 전 코드(기준 커밋 `aef9d98`) 기준이며, 현재 인증 구조 및 엔드포인트(소셜 로그인 `/oauth/**` 4종 추가)와 일부 불일치합니다. 현행 흐름은 [`../../README.md`](../../README.md)와 [`../oauth-login-flow.md`](../oauth-login-flow.md)를 참고하세요.
+
 - 기준 커밋: `aef9d98`
 - 근거: `controller` 패키지 5개 컨트롤러의 실제 핸들러 시그니처, `dto` 패키지 4종
 - 클래스 레벨 `@RequestMapping`은 **없습니다** — 모든 URL은 루트 기준 절대 경로입니다.

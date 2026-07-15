@@ -1,5 +1,7 @@
 # ERD — 엔티티 관계 다이어그램
 
+> ⚠️ **현행 코드와 일부 불일치** — 해당 설계 문서는 Spring Security 및 OAuth2 도입 전 코드(기준 커밋 `aef9d98`) 기준이며, 현재 인증 구조와 일부 불일치합니다. 현행 인증·소셜 로그인 흐름은 [`../../README.md`](../../README.md)와 [`../oauth-login-flow.md`](../oauth-login-flow.md)를 참고하세요.
+
 - 기준 커밋: `aef9d98`
 - 근거: `src/main/java/com/example/login/domain/` 의 `DoMember.java`, `Question.java`, `Answer.java`
 - 스키마는 JPA `ddl-auto: update`로 자동 생성됩니다. 별도의 DDL 스크립트나 `@Table(name=...)` 지정은 **없습니다** — 테이블/컬럼명은 Hibernate 기본 네이밍 전략(camelCase → snake_case)으로 산출한 값입니다.

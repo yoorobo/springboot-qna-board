@@ -1,5 +1,7 @@
 # 시퀀스 다이어그램
 
+> ⚠️ **현행 코드와 일부 불일치** — 해당 설계 문서는 Spring Security 및 OAuth2 도입 전 코드(기준 커밋 `aef9d98`) 기준이며, 현재 인증 구조와 일부 불일치합니다. 특히 로그인 흐름은 현재 Spring Security가 처리하며, 소셜 로그인은 [`../oauth-login-flow.md`](../oauth-login-flow.md)를 참고하세요.
+
 - 기준 커밋: `aef9d98`
 - participant는 모두 **실제 클래스명**입니다. `@SessionAttribute`는 **해당 핸들러 시그니처에 실제로 존재하는 경우에만** 표기했습니다.
 - 공통 사항: `GlobalModelAdvice`(`@ControllerAdvice`)가 **모든 요청**의 Model에 `loginMember`를 주입하지만, 다이어그램 가독성을 위해 흐름 1에만 명시하고 나머지는 생략했습니다.
