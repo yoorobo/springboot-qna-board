@@ -7,9 +7,11 @@
     <link th:href="@{/css/style.css}" rel="stylesheet">
     <title th:replace="${title}">home</title>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <nav th:replace="~{navbar :: navbarFragment}"></nav>
-<main th:replace="${content}"></main>
+<div class="flex-grow-1">
+    <main th:replace="${content}"></main>
+</div>
 <footer th:replace="~{footer :: footerFragment}"></footer>
 <script th:src="@{/js/bootstrap.bundle.js}"></script>
 <th:block th:replace="${script}"></th:block>
